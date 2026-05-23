@@ -24,7 +24,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const mongoose = require("mongoose");
 const jwtToken = require("jsonwebtoken");
-const dbConnection  = require("./config/connection");
+const dbConnection = require("./config/connection");
 const { json } = require("stream/consumers");
 
 //Create Express application
@@ -34,13 +34,43 @@ const app = express();
 const PORT = process.env.PORT;
 
 //Connect to MongoDB
-dbConnection();
+//dbConnection();
 
 //MIDDLEWARE
+/*
+Both middlewares put the final result into req.body, but each one knows how to convert a different format(application/x-www-form-urlencoded, application/json) into a JavaScript object
+
+1: Form
+username=sri&password=123
+content-type:application/x-www-form-urlencoded
+
+2: Json
+Content-Type:application/json
+{
+  "username": "sri",
+  "password": "123"
+}
+*/
+app.use(express.urlencoded({ extended: true }));
 //Parse incoming JSON request bodies and make the data available in req.body
 app.use(express.json());
 
 //ROUTES
+
+/*
+When request comes:
+
+Request enters Express.
+express.json() checks: “Is this JSON?”
+express.urlencoded() checks: “Is this form data?”
+Then the matching route runs: app.get, app.post, etc.
+
+For a normal GET request, usually there is no body, so these middlewares do nothing.
+For form submit with POST, this one reads it: express.urlencoded()
+For JSON sent with POST, this one reads it: express.json()
+*/
+
+
 
 //PORT / SERVER LISTEN
 /*
@@ -56,9 +86,16 @@ Node.js = runtime environment
 HTTP module = creates server
 Express = framework that simplifies server code.
 */
-app.listen(PORT, ()=>{
-    console.log(`Http server Listening on PORT ${PORT}`);
-})
+
+dbConnection()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`🌍 Now Http server Listening on Localhost: ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.log("Failed to connect to MongoDB and start server:", error.message);
+    });
 
 
 
