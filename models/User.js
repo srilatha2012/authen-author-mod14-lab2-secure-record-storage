@@ -1,6 +1,9 @@
+//Import mongoose package
 const mongoose = require("mongoose");
+//Import bcrypt package to hash and compare passwords
 const bcrypt = require("bcrypt");
 
+//Define User schema
 const userSchema = new mongoose.Schema({
     username:{
         type: String,
@@ -21,7 +24,7 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-//hash user password before saving- This method is a Mongoose pre-save middleware. It runs before saving a user to MongoDB
+//hash user password before saving the user to MongoDB- This method is a Mongoose pre-save middleware. It runs before saving a user to MongoDB
 userSchema.pre('save', async function (next) {
     if(this.isNew || this.isModified('password')) {
         const saltRounds = 10;
@@ -30,11 +33,12 @@ userSchema.pre('save', async function (next) {
     next();
 });
 
-//custom method to compare and validate password for logging in
+//custom method to compare login password with hashed password
 userSchema.methods.isCorrectPassword = async function (password) {
     return bcrypt.compare(password, this.password);
 };
 
-const User = model('User', userSchema);
+//Create User model from userSchema
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
