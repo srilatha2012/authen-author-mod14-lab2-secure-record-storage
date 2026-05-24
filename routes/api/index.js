@@ -1,10 +1,11 @@
-const router = require("express").Router();
-const apiRoutes = require("/api");
+const router = require('express').Router();
+const userRoutes = require('./userRoutes');
+const noteRoutes = require('./noteRoutes');
 
-router.use("/api", apiRoutes);
+// Use user routes for /users
+router.use('/users', userRoutes);
 
-router.use((req, res) => {
-res.status(404).send(`<h1> 😝 404 Error!</h1>`)
-});
-
+// Use note routes for /notes
+router.use('/notes', noteRoutes);
+ 
 module.exports = router;
