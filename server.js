@@ -22,10 +22,10 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 //Import express package
 const express = require("express");
-const mongoose = require("mongoose");
+const path = require("path");
 const jwtToken = require("jsonwebtoken");
 const dbConnection = require("./config/connection");
-const { json } = require("stream/consumers");
+const routes = require("./routes");
 
 //Create Express application
 const app = express();
@@ -55,7 +55,14 @@ app.use(express.urlencoded({ extended: true }));
 //Parse incoming JSON request bodies and make the data available in req.body
 app.use(express.json());
 
+// if we're in production, serve client/build as static assets
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+}
+
+
 //ROUTES
+app.use(routes);
 
 /*
 When request comes:
@@ -86,7 +93,6 @@ Node.js = runtime environment
 HTTP module = creates server
 Express = framework that simplifies server code.
 */
-
 dbConnection()
     .then(() => {
         app.listen(PORT, () => {
